@@ -30,11 +30,31 @@ input[type="range"] {
   height: 100%;
   
   display: none;
+  
+  background: url('../img/galaxy_background.png'), -webkit-radial-gradient(center, ellipse cover, #45b1c4 0%,#2f9fb7 100%);
+  background-color: #2f9fb7;
+  background-repeat: no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-position: top;
+  
+  overflow: auto;
 }
 
 #splash {
   background-image: url(../img/code-back.jpg);
   text-align: center;
   vertical-align: middle;
-  display: block;
+}
+
+.table-view {
+  background: transparent;
+  border: 0;
+}
+
+.twitter-form .avatar {
+  width: 100px;
+  height: 100px;
 }

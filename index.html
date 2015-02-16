@@ -29,6 +29,9 @@
 </head>
 <body>
   
+  <!--
+  Splash page
+  -->
   <section class="page" id="splash">
     
     <img src="img/pusher-logos/pusher-slogan-dark.png" />
@@ -41,10 +44,13 @@
     
   </section>
   
+  <!-- Notifications
+  Let's users submit notifictions to the API Pitch Server endpoint
+  -->
   <section class="page" id="notifications">
     
     <div class="content-padded">
-      <form class="notification_form">
+      <form class="notification-form">
         <input name="message" type="text" placeholder="Message" required>
         <button class="btn btn-positive btn-block">Trigger Event</button>
       </form>
@@ -52,14 +58,36 @@
     
   </section>
   
+  <!--
+  Presence
+  -->
+  <section class="page" id="presence">
+    
+    <form class="twitter-form">
+      <ul class="table-view">
+        <li class="table-view-cell media">
+          <span class="avatar-wrapper">
+            <img class="avatar media-object pull-left" src="./img/user-placeholder.jpg" />
+          </span>
+          <div class="media-body">
+            <input name="twitter_id" type="text" placeholder="@TwitterID" required>
+            <button class="btn btn-positive btn-block">Submit</button>
+          </div>
+        </li>
+      </ul>
+    </form>
+    
+  </section>
+  
+  <!-- Language selection
+
+  Don't use this right now.
   <section class="page" id="lang_choice">
   
-    <!-- Make sure all your bars are the first things in your <body> -->
     <header class="bar bar-nav">
       <h1 class="title">Languages/Runtimes</h1>
     </header>
     
-    <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content">
       
       <p class="content-padded">Indicate your language/runtime preference:</p>
@@ -111,6 +139,7 @@
     </div>
     
   </section>
+  -->
   
   <script src="//js.pusher.com/2.2/pusher.min.js"></script>
   <script src="./js/app.js"></script>
