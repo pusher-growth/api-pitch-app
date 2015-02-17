@@ -2,7 +2,7 @@
   
   // var serverBaseUrl = 'https://api-pitch-server.herokuapp.com';
   var serverBaseUrl = 'http://localhost:5000';
-  var usersOnlineAuthEndpoint = serverBaseUrl + '/users_online';
+  var authEndpoint = serverBaseUrl + '/auth';
   var notificationEndpoint = serverBaseUrl + '/notification';
   var startPageId = 'splash';
   
@@ -11,13 +11,12 @@
     this._doc = document;
     this._storage = storage;
     
+    this.onPageChange = function(){};
+    
     var navigations = pusher.subscribe('navigations');
     navigations.bind('navigate', this._navigate, this);
     
-    var currentPageId = this._storage.getCurrentPageId();
-    this._currentPage = this._doc.getElementById(currentPageId);
-    
-    this.goToPage(currentPageId);
+    this.goToPage(this._storage.getCurrentPageId());
   }
   
   Navigations.prototype._navigate = function(data) {
@@ -26,13 +25,18 @@
   };
   
   Navigations.prototype.goToPage = function(pageId) {
-    this._currentPage.style.display = 'none';
-    this._currentPage = this._doc.getElementById(pageId);
-    this._currentPage.style.display = 'block';
-    this._currentPage.classList.add('animated');
-    this._currentPage.classList.add('flipInY');
+    var oldPageId = this._storage.getCurrentPageId();
+    var oldCurrentPage = this._doc.getElementById(oldPageId);
+    oldCurrentPage.style.display = 'none';
+    
+    var newCurrentPage = this._doc.getElementById(pageId);
+    newCurrentPage.style.display = 'block';
+    newCurrentPage.classList.add('animated');
+    newCurrentPage.classList.add('flipInY');
     
     this._storage.setCurrentPageId(pageId);
+    
+    this.onPageChange(oldPageId, pageId);
   };
   
   // To provide a count of the number of online users
@@ -40,7 +44,7 @@
     this._doc = document;
     this._selector = selector;
     
-    this._usersOnline = pusher.subscribe('presence-users-online');
+    this._usersOnline = pusher.subscribe('presence-user-count');
     
     this._usersOnline.bind('pusher:subscription_succeeded', this._updateUserCount, this);
     this._usersOnline.bind('pusher:member_added', this._updateUserCount, this);
@@ -84,7 +88,7 @@
     this._notifier.info(data.msg);
   };
   
-  // Twitter Presence helper
+  // Twitter Form helper
   function TwitterUserForm(window, document, jq, pusher, selector, avatarService, storage) {
     this._win = window;
     this._doc = document;
@@ -136,6 +140,47 @@
     
   };
   
+  // Presence
+  function Presence(document, jq, selector, pusher, storage) {
+    this._doc = document;
+    this._jq = jq;
+    
+    this._page = this._jq(selector);
+    this._ball = this._page.find('.ball');
+    
+    this._selector = selector;
+    this._pusher = pusher;
+    this._storage = storage;
+  }
+  
+  Presence.prototype.subscribe = function() {
+    this._pusher.config.auth = {
+      params: {
+        'twitter_id': this._storage.getTwitterId()
+      }
+    };
+    
+    this._channel = this._pusher.subscribe('presence-users');
+    this._channel.bind('pusher:subscription_succeeded', this._succeeded, this);
+  };
+  
+  Presence.prototype._succeeded = function() {
+    // TODO: Enable UI
+  };
+  
+  Presence.prototype.unsubscribe = function() {
+    this._pusher.unsubscribe(this._channel.name);
+    
+    // TODO: disable UI
+  };
+  
+  Presence.prototype._pitch = function() {
+    // TODO: needs something that indicates speed/size/velocity
+    // which is reflected in the size of the avatar
+    var data = {some:'data'};
+    this._channel.trigger('client-pitch', data);
+  };
+  
   // Toastr Notifier
   function ToastrNotifier(toastr) {
     this._toastr = toastr;
@@ -153,7 +198,7 @@
     var twitterId = id.trim().replace('@', '');
     var url = 'http://avatars.io/twitter/' + twitterId;
     return url;
-  }
+  };
   
   // State :(
   function LocalStorage(defaultStartPageId) {
@@ -204,7 +249,7 @@
   
   var pusher = new Pusher('ddf4525af004daf4ba2a', {
     encrypted: true,
-    authEndpoint: usersOnlineAuthEndpoint
+    authEndpoint: authEndpoint
   });
   
   var storage = new LocalStorage(startPageId);
@@ -216,6 +261,16 @@
   new Notifications(document, jQuery, pusher, '.notification-form', new ToastrNotifier(toastr));
   
   new TwitterUserForm(window, document, jQuery, pusher, '.twitter-form', new AvatarsIOService(), storage);
+  
+  var presence = new Presence(document, jQuery, '#presence', pusher, storage);
+  nav.onPageChange = function(fromPageId, toPageId) {
+    if(toPageId === 'presence') {
+      presence.subscribe();
+    }
+    else {
+      presence.unsubscribe();
+    }
+  };
   
   window.addEventListener('load', function() {
     var currentPageId = storage.getCurrentPageId();
