@@ -181,13 +181,18 @@
       },
       axis: 'y',
       startThreshold: [100,100],
-      start: function() {
-      },
       stop: function() {
         // throwing the ball upwards means a negative vlue
         var velocity = this.velocity().y*-1;
         var mph = Math.round(velocity/20);
         self._velIndicator.text((mph>0?mph:0) + ' mph');
+        
+        var twitterId = self._storage.getTwitterId();
+        var data = {
+            twitter_id: twitterId,
+            mph: mph
+          };
+        self._channel.trigger('client-pitched', data);
       }
     });
   };
