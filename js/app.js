@@ -141,16 +141,23 @@
   };
   
   // Presence
-  function Presence(document, jq, selector, pusher, storage) {
+  function Presence(document, jq, selector, pusher, storage, avatarService) {
     this._doc = document;
     this._jq = jq;
-    
-    this._page = this._jq(selector);
-    this._ball = this._page.find('.ball');
-    
     this._selector = selector;
     this._pusher = pusher;
     this._storage = storage;
+    this._avatarService = avatarService;
+    
+    this._page = this._jq(selector);
+    this._ball = this._page.find('.ball');
+    this._velIndicator = this._page.find('.velocity');
+    
+    this._canThrowBall = false;
+    
+    var twitterId = this._storage.getTwitterId();
+    var url = this._avatarService.toTwitterUrl(twitterId);
+    this._ball.css('background-image', 'url(' + url + ')');
   }
   
   Presence.prototype.subscribe = function() {
@@ -165,7 +172,24 @@
   };
   
   Presence.prototype._succeeded = function() {
-    // TODO: Enable UI
+    var self = this;
+
+    this._ball.pep({
+      revert: true,
+      revertIf: function(ev, obj){
+        return self._canThrowBall == false;
+      },
+      axis: 'y',
+      startThreshold: [100,100],
+      start: function() {
+      },
+      stop: function() {
+        // throwing the ball upwards means a negative vlue
+        var velocity = this.velocity().y*-1;
+        var mph = Math.round(velocity/20);
+        self._velIndicator.text((mph>0?mph:0) + ' mph');
+      }
+    });
   };
   
   Presence.prototype.unsubscribe = function() {
@@ -253,6 +277,7 @@
   });
   
   var storage = new LocalStorage(startPageId);
+  var avatars = new AvatarsIOService();
   
   var nav = new Navigations(document, pusher, storage);
   
@@ -260,9 +285,9 @@
   
   new Notifications(document, jQuery, pusher, '.notification-form', new ToastrNotifier(toastr));
   
-  new TwitterUserForm(window, document, jQuery, pusher, '.twitter-form', new AvatarsIOService(), storage);
+  new TwitterUserForm(window, document, jQuery, pusher, '.twitter-form', avatars, storage);
   
-  var presence = new Presence(document, jQuery, '#presence', pusher, storage);
+  var presence = new Presence(document, jQuery, '#presence', pusher, storage, avatars);
   nav.onPageChange = function(fromPageId, toPageId) {
     if(toPageId === 'presence') {
       presence.subscribe();

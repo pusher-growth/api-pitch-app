@@ -55,6 +55,8 @@ input[type="range"] {
 }
 
 #presence {
+  overflow: hidden;
+  position: relative;
   text-align: center;
   vertical-align: middle;
   color: #fff;
@@ -64,6 +66,9 @@ input[type="range"] {
 #presence .avatar {
   position: absolute;
   bottom: 15%;
+  
+  left: 45%;
+  bottom: 10%;
   
   background-image: url(../img/user-placeholder.jpg);
   background-repeat: no-repeat;
@@ -108,7 +113,14 @@ input[type="range"] {
   background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0) 50%);
   -webkit-transform: rotateX(90deg) translateZ(-160px);
   transform: rotateX(90deg) translateZ(-160px);
-  z-index: 1; }
+  z-index: 1;
+}
+
+.ball.pep-active {
+  -webkit-box-shadow: 0px 0px 5px 5px rgba(238,255,0,1);
+  -moz-box-shadow: 0px 0px 5px 5px rgba(238,255,0,1);
+  box-shadow: 0px 0px 5px 5px rgba(238,255,0,1);
+}
 
 .table-view {
   background: transparent;
