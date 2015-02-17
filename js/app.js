@@ -27,16 +27,23 @@
   Navigations.prototype.goToPage = function(pageId) {
     var oldPageId = this._storage.getCurrentPageId();
     var oldCurrentPage = this._doc.getElementById(oldPageId);
-    oldCurrentPage.style.display = 'none';
+    if(oldCurrentPage) {
+      oldCurrentPage.style.display = 'none';
+    }
     
     var newCurrentPage = this._doc.getElementById(pageId);
-    newCurrentPage.style.display = 'block';
-    newCurrentPage.classList.add('animated');
-    newCurrentPage.classList.add('flipInY');
-    
-    this._storage.setCurrentPageId(pageId);
-    
-    this.onPageChange(oldPageId, pageId);
+    if(newCurrentPage) {
+      newCurrentPage.style.display = 'block';
+      newCurrentPage.classList.add('animated');
+      newCurrentPage.classList.add('flipInY');
+      
+      this._storage.setCurrentPageId(pageId);
+      
+      this.onPageChange(oldPageId, pageId);
+    }
+    else {
+      console.error('Could not find page to navigate to %s', pageId);
+    }
   };
   
   // To provide a count of the number of online users
@@ -72,7 +79,7 @@
     });
     
     var notifications = pusher.subscribe('notifications');
-    notifications.bind('info', this._infoNotification, this);
+    notifications.bind('success', this._successNotification, this);
   }
   
   Notifications.prototype._submit = function(e) {
@@ -84,8 +91,8 @@
     this._jq.post(notificationEndpoint, {text: text});
   };
   
-  Notifications.prototype._infoNotification = function(data) {
-    this._notifier.info(data.msg);
+  Notifications.prototype._successNotification = function(data) {
+    this._notifier.success(data.msg);
   };
   
   // Twitter Form helper
@@ -93,20 +100,24 @@
     this._win = window;
     this._doc = document;
     this._jq = jq;
+    this._pusher = pusher;
     this._selector = selector;
     this._avatarService = avatarService;
     this._storage = storage;
     
     this._searchTimeoutId = null;
   
-    this._jq(selector)
+    this._inputEl = this._jq(selector)
       .find('input[name="twitter_id"]')
       .val(this._storage.getTwitterId())
       .each(function(i, el){
         this._getTwitterAvatar.call(this, this._jq(el))
       }.bind(this))
       .on('keyup', this._handleKeyUp.bind(this));
-    this._jq(selector).on('submit', this._submit.bind(this));
+    
+    this._jq(selector)
+      .find('.twitter-form')
+      .on('submit', this._submit.bind(this));
   }
   
   TwitterUserForm.prototype._handleKeyUp = function(e) {
@@ -136,8 +147,17 @@
   
   TwitterUserForm.prototype._submit = function(e) {
     e.preventDefault();
-    var form = e.currentTarget;
+    this._jq(e.currentTarget).hide();
     
+    this._pusher.config.auth = {
+      params: {
+        'twitter_id': this._storage.getTwitterId()
+      }
+    };
+    
+    this._pusher.subscribe('presence-users');
+    
+    // TODO: animate avatar to middle of
   };
   
   // Presence
@@ -154,10 +174,6 @@
     this._velIndicator = this._page.find('.velocity');
     
     this._canThrowBall = false;
-    
-    var twitterId = this._storage.getTwitterId();
-    var url = this._avatarService.toTwitterUrl(twitterId);
-    this._ball.css('background-image', 'url(' + url + ')');
   }
   
   Presence.prototype.subscribe = function() {
@@ -167,11 +183,15 @@
       }
     };
     
-    this._channel = this._pusher.subscribe('presence-users');
+    this._channel = this._pusher.subscribe('presence-pitch');
     this._channel.bind('pusher:subscription_succeeded', this._succeeded, this);
   };
   
   Presence.prototype._succeeded = function() {
+    var twitterId = this._storage.getTwitterId();
+    var url = this._avatarService.toTwitterUrl(twitterId);
+    this._ball.css('background-image', 'url(' + url + ')');
+    
     var self = this;
 
     this._ball.pep({
@@ -210,8 +230,8 @@
     this._toastr = toastr;
   }
   
-  ToastrNotifier.prototype.info = function(msg) {
-    this._toastr.info(msg, null, {"positionClass": "toast-top-full-width"});
+  ToastrNotifier.prototype.success = function(msg) {
+    this._toastr.success(msg, null, {"positionClass": "toast-top-full-width"});
   };
   
   // avatars.io
@@ -258,6 +278,7 @@
   };
   
   LocalStorage.prototype.setTwitterId = function(twitterId) {
+    var twitterId = twitterId.replace('@', '');
     this.storage.twitterId = twitterId;
     this._sync();
   };
@@ -285,11 +306,11 @@
   
   new Notifications(document, jQuery, pusher, '.notification-form', new ToastrNotifier(toastr));
   
-  new TwitterUserForm(window, document, jQuery, pusher, '.twitter-form', avatars, storage);
+  new TwitterUserForm(window, document, jQuery, pusher, '#twitter', avatars, storage);
   
-  var presence = new Presence(document, jQuery, '#presence', pusher, storage, avatars);
+  var presence = new Presence(document, jQuery, '#pitch', pusher, storage, avatars);
   nav.onPageChange = function(fromPageId, toPageId) {
-    if(toPageId === 'presence') {
+    if(toPageId === 'pitch') {
       presence.subscribe();
     }
     else {

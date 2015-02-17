@@ -54,12 +54,12 @@ input[type="range"] {
   min-width: 400px;
 }
 
-#presence {
+#pitch {
   background-image: url(../img/ballpark.jpg);
   background-position: top middle;
 }
 
-#presence {
+#pitch {
   overflow: hidden;
   position: relative;
   text-align: center;
@@ -68,7 +68,7 @@ input[type="range"] {
   text-shadow: 0px 0px 3px #000, -1px -1px #000, 1px 1px #000;
 }
 
-#presence .avatar {
+#pitch .avatar {
   position: absolute;
   bottom: 15%;
   
@@ -132,7 +132,7 @@ input[type="range"] {
   border: 0;
 }
 
-.twitter-form .avatar {
+#twitter .avatar {
   width: 100px;
   height: 100px;
 }
