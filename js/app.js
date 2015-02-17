@@ -203,13 +203,6 @@
     // TODO: disable UI
   };
   
-  Presence.prototype._pitch = function() {
-    // TODO: needs something that indicates speed/size/velocity
-    // which is reflected in the size of the avatar
-    var data = {some:'data'};
-    this._channel.trigger('client-pitch', data);
-  };
-  
   // Toastr Notifier
   function ToastrNotifier(toastr) {
     this._toastr = toastr;
