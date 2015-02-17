@@ -1,7 +1,7 @@
 (function() {
   
-  // var serverBaseUrl = 'https://api-pitch-server.herokuapp.com';
-  var serverBaseUrl = 'http://localhost:5000';
+  var serverBaseUrl = 'https://api-pitch-server.herokuapp.com';
+  // var serverBaseUrl = 'http://localhost:5000';
   var authEndpoint = serverBaseUrl + '/auth';
   var notificationEndpoint = serverBaseUrl + '/notification';
   var startPageId = 'splash';
