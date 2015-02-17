@@ -198,7 +198,9 @@
   };
   
   Presence.prototype.unsubscribe = function() {
-    this._pusher.unsubscribe(this._channel.name);
+    if(this._channel) {
+      this._pusher.unsubscribe(this._channel.name);
+    }
     
     // TODO: disable UI
   };
