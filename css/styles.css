@@ -49,6 +49,11 @@ input[type="range"] {
   vertical-align: middle;
 }
 
+#splash img {
+  width: 100%;
+  min-width: 400px;
+}
+
 #presence {
   background-image: url(http://brentmayne.com/wp-content/uploads/2010/09/dodgers00511.jpg);
   background-position: top middle;
