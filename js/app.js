@@ -13,8 +13,8 @@
     
     this.onPageChange = function(){};
     
-    var navigations = pusher.subscribe('navigations');
-    navigations.bind('navigate', this._navigate, this);
+    var navigations = pusher.subscribe('nav');
+    navigations.bind('page_change', this._navigate, this);
     
     this.goToPage(this._storage.getCurrentPageId());
   }
