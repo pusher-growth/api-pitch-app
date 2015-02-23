@@ -50,8 +50,8 @@ input[type="range"] {
 }
 
 #splash img {
-  width: 100%;
-  min-width: 400px;
+  width: 90%;
+  min-width: 300px;
 }
 
 #pitch {
@@ -135,4 +135,25 @@ input[type="range"] {
 #twitter .avatar {
   width: 100px;
   height: 100px;
+}
+
+#online_offline {
+  /* initially hidden until user submits their Twitter ID */
+  display: none;
+  
+  width: 100px;
+}
+
+#online_offline.toggle:before {
+  content: 'Offline';
+}
+
+#online_offline.toggle.active:before {
+  content: 'Online';
+}
+
+#online_offline.toggle.active .toggle-handle {
+  -webkit-transform: translate3d(70px, 0, 0);
+  -ms-transform: translate3d(70px, 0, 0);
+  transform: translate3d(70px, 0, 0);
 }

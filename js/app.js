@@ -101,13 +101,23 @@
     this._doc = document;
     this._jq = jq;
     this._pusher = pusher;
-    this._selector = selector;
+    this._el = this._jq(selector);
+    this._onlineToggle = this._el.find('#online_offline');
+    
+    var self = this;
+    // workaround toggle timing issues
+    this._onlineToggle.on('click', function(e) {
+      setTimeout(function() {
+        self._toggle(e);
+      }, 100);
+    });
+    
     this._avatarService = avatarService;
     this._storage = storage;
     
     this._searchTimeoutId = null;
   
-    this._inputEl = this._jq(selector)
+    this._inputEl = this._el
       .find('input[name="twitter_id"]')
       .val(this._storage.getTwitterId())
       .each(function(i, el){
@@ -115,7 +125,7 @@
       }.bind(this))
       .on('keyup', this._handleKeyUp.bind(this));
     
-    this._jq(selector)
+    this._el
       .find('.twitter-form')
       .on('submit', this._submit.bind(this));
   }
@@ -136,7 +146,7 @@
   };
   
   TwitterUserForm.prototype._getTwitterAvatar = function(inputEl) {
-    var avatarEl = inputEl.parents(this._selector).find('img.avatar');
+    var avatarEl = this._el.find('img.avatar');
     var twitterId = inputEl.val();
     if(twitterId) {
       this._storage.setTwitterId(twitterId);
@@ -148,17 +158,24 @@
   TwitterUserForm.prototype._submit = function(e) {
     e.preventDefault();
     this._jq(e.currentTarget).hide();
-    
+    this._onlineToggle.show();
+  };
+  
+  TwitterUserForm.prototype._toggle = function(e) {
     this._pusher.config.auth = {
       params: {
         'twitter_id': this._storage.getTwitterId()
       }
     };
     
-    this._pusher.subscribe('presence-users');
-    
-    // TODO: animate avatar to middle of
-  };
+    var existingChannel = this._pusher.channel('presence-users');
+    if(this._onlineToggle.hasClass('active')) {
+      this._pusher.subscribe('presence-users');
+    }
+    else if(existingChannel) {
+      this._pusher.unsubscribe('presence-users');
+    }
+  }
   
   // Presence
   function Presence(document, jq, selector, pusher, storage, avatarService) {
@@ -192,8 +209,12 @@
     var url = this._avatarService.toTwitterUrl(twitterId);
     this._ball.css('background-image', 'url(' + url + ')');
     
+    setTimeout(this._initPep.bind(this), 300);
+  };
+  
+  Presence.prototype._initPep = function() {
     var self = this;
-
+    
     this._ball.pep({
       revert: true,
       revertIf: function(ev, obj){
@@ -209,13 +230,13 @@
         
         var twitterId = self._storage.getTwitterId();
         var data = {
-            twitter_id: twitterId,
-            mph: mph
-          };
+          twitter_id: twitterId,
+          mph: mph
+        };
         self._channel.trigger('client-pitched', data);
       }
     });
-  };
+  }
   
   Presence.prototype.unsubscribe = function() {
     if(this._channel) {
@@ -322,6 +343,17 @@
     var currentPageId = storage.getCurrentPageId();
     if(currentPageId !== startPageId) {
       nav.goToPage(currentPageId);
+    }
+    
+    var touchSupport = 'ontouchstart' in document.documentElement;
+    if(!touchSupport) {
+      jQuery('.toggle-handle').on('click', function(e) {
+        jQuery(e.target).parent('.toggle').toggleClass('active');
+      });
+      
+      jQuery('.toggle').on('click', function(e) {
+        jQuery(e.target).toggleClass('active');
+      });
     }
   });
   

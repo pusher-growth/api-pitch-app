@@ -743,6 +743,7 @@
   };
 
   var onTouchStart = function (e) {
+    debugger;
     slider = getSlider(e.target);
 
     if (!slider) {
