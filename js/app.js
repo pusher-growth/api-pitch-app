@@ -18,8 +18,6 @@
     
     var clientNavigations = pusher.subscribe('private-nav');
     clientNavigations.bind('client-page_change', this._navigate, this);
-    
-    this.goToPage(this._storage.getCurrentPageId());
   }
   
   Navigations.prototype._navigate = function(data) {
@@ -65,7 +63,7 @@
     var count = this._usersOnline.members.count;
     var els = this._doc.querySelectorAll(this._selector);
     Array.prototype.forEach.call(els, function(el) {
-      el.innerText = count;
+      jQuery(el).text(count);
     });
   };
   
@@ -180,8 +178,8 @@
     }
   }
   
-  // Presence
-  function Presence(document, jq, selector, pusher, storage, avatarService) {
+  //
+  function Pitch(document, jq, selector, pusher, storage, avatarService) {
     this._doc = document;
     this._jq = jq;
     this._selector = selector;
@@ -196,7 +194,7 @@
     this._canThrowBall = false;
   }
   
-  Presence.prototype.subscribe = function() {
+  Pitch.prototype.subscribe = function() {
     if(this._channel && this._channel.subscribed) {
       return;
     }
@@ -211,7 +209,7 @@
     this._channel.bind('pusher:subscription_succeeded', this._succeeded, this);
   };
   
-  Presence.prototype._succeeded = function() {
+  Pitch.prototype._succeeded = function() {
     var twitterId = this._storage.getTwitterId();
     var url = this._avatarService.toTwitterUrl(twitterId);
     this._ball.css('background-image', 'url(' + url + ')');
@@ -219,7 +217,7 @@
     setTimeout(this._initPep.bind(this), 300);
   };
   
-  Presence.prototype._initPep = function() {
+  Pitch.prototype._initPep = function() {
     var self = this;
     
     this._ball.pep({
@@ -245,9 +243,10 @@
     });
   }
   
-  Presence.prototype.unsubscribe = function() {
+  Pitch.prototype.unsubscribe = function() {
     if(this._channel) {
       this._pusher.unsubscribe(this._channel.name);
+      this._channel = null;
     }
     
     // TODO: disable UI
@@ -336,13 +335,13 @@
   
   new TwitterUserForm(window, document, jQuery, pusher, '#twitter', avatars, storage);
   
-  var presence = new Presence(document, jQuery, '#pitch', pusher, storage, avatars);
+  var pitch = new Pitch(document, jQuery, '#pitch', pusher, storage, avatars);
   nav.onPageChange = function(fromPageId, toPageId) {
     if(toPageId === 'pitch') {
-      presence.subscribe();
+      pitch.subscribe();
     }
     else {
-      presence.unsubscribe();
+      pitch.unsubscribe();
     }
   };
   
@@ -352,6 +351,8 @@
       nav.goToPage(currentPageId);
     }
     
+    // Only add click handlers if touch isn't supported
+    // and the goratchet toggle.js won't work.
     var touchSupport = 'ontouchstart' in document.documentElement;
     if(!touchSupport) {
       jQuery('.toggle-handle').on('click', function(e) {
