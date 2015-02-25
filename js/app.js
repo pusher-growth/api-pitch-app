@@ -16,6 +16,9 @@
     var navigations = pusher.subscribe('nav');
     navigations.bind('page_change', this._navigate, this);
     
+    var clientNavigations = pusher.subscribe('private-nav');
+    clientNavigations.bind('client-page_change', this._navigate, this);
+    
     this.goToPage(this._storage.getCurrentPageId());
   }
   
@@ -194,6 +197,10 @@
   }
   
   Presence.prototype.subscribe = function() {
+    if(this._channel && this._channel.subscribed) {
+      return;
+    }
+    
     this._pusher.config.auth = {
       params: {
         'twitter_id': this._storage.getTwitterId()
