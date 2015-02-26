@@ -347,9 +347,7 @@
   
   window.addEventListener('load', function() {
     var currentPageId = storage.getCurrentPageId();
-    if(currentPageId !== startPageId) {
-      nav.goToPage(currentPageId);
-    }
+    nav.goToPage(currentPageId);
     
     // Only add click handlers if touch isn't supported
     // and the goratchet toggle.js won't work.
