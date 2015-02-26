@@ -29,12 +29,12 @@
     var oldPageId = this._storage.getCurrentPageId();
     var oldCurrentPage = this._doc.getElementById(oldPageId);
     if(oldCurrentPage) {
-      oldCurrentPage.style.display = 'none';
+      jQuery(oldCurrentPage).animate({height: '0'});
     }
     
     var newCurrentPage = this._doc.getElementById(pageId);
     if(newCurrentPage) {
-      newCurrentPage.style.display = 'block';
+      jQuery(newCurrentPage).animate({height: '100%'});
       newCurrentPage.classList.add('animated');
       newCurrentPage.classList.add('flipInY');
       
