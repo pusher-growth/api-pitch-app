@@ -232,6 +232,7 @@
       revertIf: function(ev, obj){
         return self._canThrowBall == false;
       },
+      place: false,
       axis: 'y',
       startThreshold: [100,100],
       stop: function() {
