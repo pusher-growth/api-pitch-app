@@ -22,7 +22,11 @@
   
   Navigations.prototype._navigate = function(data) {
     var toPageId = data.page_id;
-    this.goToPage(toPageId)
+    
+    var oldPageId = this._storage.getCurrentPageId();
+    if(oldPageId !== toPageId) {
+      this.goToPage(toPageId)
+    }
   };
   
   Navigations.prototype.goToPage = function(pageId) {
@@ -158,8 +162,11 @@
   
   TwitterUserForm.prototype._submit = function(e) {
     e.preventDefault();
-    this._jq(e.currentTarget).hide();
-    this._onlineToggle.show();
+    
+    if(this._storage.getTwitterId()) {
+      this._jq(e.currentTarget).hide();
+      this._onlineToggle.show();
+    }
   };
   
   TwitterUserForm.prototype._toggle = function(e) {
