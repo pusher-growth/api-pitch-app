@@ -4,7 +4,7 @@
   // var serverBaseUrl = 'http://localhost:5000';
   var authEndpoint = serverBaseUrl + '/auth';
   var notificationEndpoint = serverBaseUrl + '/notification';
-  var startPageId = 'splash';
+  var startPageId = 'twitter';
   
   // Page/View navigations
   function Navigations(document, pusher, storage) {
@@ -27,6 +27,10 @@
     if(oldPageId !== toPageId) {
       this.goToPage(toPageId)
     }
+  };
+
+  Navigations.prototype.toGame = function(){
+    /* body... */
   };
   
   Navigations.prototype.goToPage = function(pageId) {
@@ -166,6 +170,7 @@
     if(this._storage.getTwitterId()) {
       this._jq(e.currentTarget).hide();
       this._onlineToggle.show();
+      nav.goToPage('pitch')
     }
   };
   
