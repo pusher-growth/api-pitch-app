@@ -17,7 +17,7 @@
     navigations.bind('page_change', this._navigate, this);
     
     var clientNavigations = pusher.subscribe('private-nav');
-    clientNavigations.bind('client-page_change', this._navigate, this);
+    // clientNavigations.bind('client-page_change', this._navigate, this);
   }
   
   Navigations.prototype._navigate = function(data) {
