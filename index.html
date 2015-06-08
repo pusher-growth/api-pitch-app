@@ -36,7 +36,42 @@
   -->
   <section class="page" id="splash">
     
-    <img src="img/pusher-logos/pusher-slogan-dark.png" />
+    <img class="pusher-logo" src="img/pusher-logos/pusher-slogan-dark.png" />
+    
+    <div class="card">
+      <ul class="table-view">
+        <li class="table-view-cell">Online Users <span class="badge inline-badge badge-positive  online-users-count">0</span></li>
+      </ul>
+    </div>
+    
+  </section>
+  
+  <!-- Twitter Splash
+  Splash page also has Twitter login
+  -->
+  
+  <section class="page" id="twitter_splash">
+    
+    <img class="pusher-logo" src="img/pusher-logos/pusher-slogan-dark.png" />
+    
+    <ul class="table-view">
+      <li class="table-view-cell media">
+        <span class="avatar-wrapper">
+          <img class="avatar media-object pull-left" src="./img/user-placeholder.jpg" />
+        </span>
+        <div class="media-body">
+          <form class="twitter-form">
+            <input name="twitter_id" type="text" placeholder="@TwitterID" required="required">
+            <button class="btn btn-positive btn-block">Submit</button>
+          </form>
+          
+          <div id="online_offline" class="toggle">
+            <div class="toggle-handle"></div>
+          </div>
+
+        </div>
+      </li>
+    </ul>
     
     <div class="card">
       <ul class="table-view">
@@ -79,9 +114,7 @@
           <div id="online_offline" class="toggle">
             <div class="toggle-handle"></div>
           </div>
-          
-          
-          
+
         </div>
       </li>
     </ul>

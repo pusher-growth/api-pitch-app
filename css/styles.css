@@ -47,7 +47,7 @@ input[type="range"] {
   vertical-align: middle;
 }
 
-#splash img {
+#splash .pusher-logo, #twitter_splash .pusher-logo {
   width: 90%;
   min-width: 300px;
 }
@@ -129,7 +129,7 @@ input[type="range"] {
   border: 0;
 }
 
-#twitter .avatar {
+#twitter .avatar, #twitter_splash .avatar {
   width: 100px;
   height: 100px;
 }

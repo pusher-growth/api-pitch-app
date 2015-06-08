@@ -4,7 +4,7 @@
   // var serverBaseUrl = 'http://localhost:5000';
   var authEndpoint = serverBaseUrl + '/auth';
   var notificationEndpoint = serverBaseUrl + '/notification';
-  var startPageId = 'splash';
+  var startPageId = 'twitter_splash';
   
   // Page/View navigations
   function Navigations(document, pusher, storage) {
@@ -52,16 +52,28 @@
   };
   
   // To provide a count of the number of online users
-  function UserCount(document, pusher, selector) {
+  function UserCount(document, pusher, selector, options) {
+    var options = options || {};
+    options.channelName = options.channelName || 'presence-user-count';
+    options.autoSubscribe = ( typeof options.autoSubscribe === 'undefined'? true : options.autoSubscribe );
+    
+    this._options = options;
+    
     this._doc = document;
     this._selector = selector;
     
-    this._usersOnline = pusher.subscribe('presence-user-count');
+    if(options.autoSubscribe) {
+      this.subscribe();
+    }
+  }
+  
+  UserCount.prototype.subscribe = function() {
+    this._usersOnline = pusher.subscribe(this._options.channelName);
     
     this._usersOnline.bind('pusher:subscription_succeeded', this._updateUserCount, this);
     this._usersOnline.bind('pusher:member_added', this._updateUserCount, this);
     this._usersOnline.bind('pusher:member_removed', this._updateUserCount, this);
-  }
+  };
   
   UserCount.prototype._updateUserCount = function() {
     var count = this._usersOnline.members.count;
@@ -85,6 +97,9 @@
     
     var notifications = pusher.subscribe('notifications');
     notifications.bind('success', this._successNotification, this);
+    
+    var clientNotifications = pusher.subscribe('private-notifications');
+    clientNotifications.bind('client-success', this._successNotification, this);
   }
   
   Notifications.prototype._submit = function(e) {
@@ -97,11 +112,19 @@
   };
   
   Notifications.prototype._successNotification = function(data) {
-    this._notifier.success(data.msg);
+    var text = this._jq('<div>').text(data.msg).html();
+    this._notifier.success(text);
   };
   
   // Twitter Form helper
-  function TwitterUserForm(window, document, jq, pusher, selector, avatarService, storage) {
+  function TwitterUserForm(window, document, jq, pusher, selector, avatarService, storage, options) {
+    var options = options || {};
+    options.showToggle = (typeof options.showToggle === 'undefined'? true : options.showToggle);
+    options.userSelectedListener = options.userSelectedListener || function() {};
+    options.channelName = options.channelName || 'presence-users';
+    
+    this._options = options;
+    
     this._win = window;
     this._doc = document;
     this._jq = jq;
@@ -165,7 +188,16 @@
     
     if(this._storage.getTwitterId()) {
       this._jq(e.currentTarget).hide();
-      this._onlineToggle.show();
+      
+      if(this._options.showToggle) {
+        this._onlineToggle.show();
+      }
+      else {
+        // subscribe by default
+        this._subscribe();
+      }
+      
+      this._options.userSelectedListener();
     }
   };
   
@@ -176,14 +208,18 @@
       }
     };
     
-    var existingChannel = this._pusher.channel('presence-users');
+    var existingChannel = this._pusher.channel(this._options.channelName);
     if(this._onlineToggle.hasClass('active')) {
-      this._pusher.subscribe('presence-users');
+      this._subscribe();
     }
     else if(existingChannel) {
-      this._pusher.unsubscribe('presence-users');
+      this._pusher.unsubscribe(this._options.channelName);
     }
-  }
+  };
+  
+  TwitterUserForm.prototype._subscribe = function() {
+    this._pusher.subscribe(this._options.channelName);
+  };
   
   //
   function Pitch(document, jq, selector, pusher, storage, avatarService) {
@@ -206,9 +242,10 @@
       return;
     }
     
+    // default to just using the 'pusher' user
     this._pusher.config.auth = {
       params: {
-        'twitter_id': this._storage.getTwitterId()
+        'twitter_id': this._storage.getTwitterId() || 'pusher'
       }
     };
     
@@ -341,7 +378,10 @@
   
   new Notifications(document, jQuery, pusher, '.notification-form', new ToastrNotifier(toastr));
   
-  new TwitterUserForm(window, document, jQuery, pusher, '#twitter', avatars, storage);
+  new TwitterUserForm(window, document, jQuery, pusher, '#twitter_splash', avatars, storage,
+                      {
+                        showToggle: false
+                      });
   
   var pitch = new Pitch(document, jQuery, '#pitch', pusher, storage, avatars);
   nav.onPageChange = function(fromPageId, toPageId) {
