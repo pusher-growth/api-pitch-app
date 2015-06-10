@@ -245,7 +245,7 @@
     // default to just using the 'pusher' user
     this._pusher.config.auth = {
       params: {
-        'twitter_id': this._storage.getTwitterId() || 'pusher'
+        'twitter_id': this._storage.getTwitterId()
       }
     };
     
@@ -278,9 +278,8 @@
         var mph = Math.round(velocity/20);
         self._velIndicator.text((mph>0?mph:0) + ' mph');
         
-        var twitterId = self._storage.getTwitterId();
         var data = {
-          twitter_id: twitterId,
+          twitter_id: self._channel.members.me.id,
           mph: mph
         };
         self._channel.trigger('client-pitched', data);
