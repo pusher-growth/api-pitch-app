@@ -20,6 +20,13 @@ input[type="range"] {
   -ms-flex: 1;
 }
 
+.notification-form label {
+  display: block;
+  color: #fff;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
 .inline-badge {
   right: auto !important;
   margin: 0 5px;
