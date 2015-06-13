@@ -279,7 +279,7 @@
         self._velIndicator.text((mph>0?mph:0) + ' mph');
         
         var data = {
-          twitter_id: self._channel.members.me.id,
+          twitter_id: self._channel.members.me.info.twitter_id,
           mph: mph
         };
         self._channel.trigger('client-pitched', data);
